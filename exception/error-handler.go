@@ -19,7 +19,7 @@ func ErrorHandler(ctx *fiber.Ctx, err error) error {
 	}
 
 	// If Internal Server Error
-	return internalServerError(ctx, err)
+	return InternalServerError(ctx, err)
 }
 
 func validationError(ctx *fiber.Ctx, err error) bool {
@@ -46,7 +46,7 @@ func notFoundError(ctx *fiber.Ctx, err interface{}) bool {
 	return false
 }
 
-func internalServerError(ctx *fiber.Ctx, err error) error {
+func InternalServerError(ctx *fiber.Ctx, err error) error {
 	errorResponse := web.ErrorResponse{
 		Errors: err.Error(),
 	}
