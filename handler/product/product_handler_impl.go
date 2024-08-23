@@ -6,10 +6,10 @@ import (
 	"test-golang-muhamad-isro/entity/domain"
 	webResponse "test-golang-muhamad-isro/entity/web"
 	webRequest "test-golang-muhamad-isro/entity/web/product"
-	"test-golang-muhamad-isro/helper"
 	service "test-golang-muhamad-isro/service/product"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type ProductHandlerImpl struct {
@@ -23,10 +23,38 @@ func NewProductHandler(productService service.ProductService) ProductHandler {
 }
 
 func (handler *ProductHandlerImpl) Insert(ctx *fiber.Ctx) error {
-	product := new(domain.Product)
-	err := json.Unmarshal(ctx.Body(), product)
 
-	helper.PanicIfError(err)
+	var payload map[string]interface{}
+	err := json.Unmarshal(ctx.Body(), &payload)
+	if err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"errors": "Invalid request payload",
+		})
+	}
+
+	categoryIDStr, ok := payload["category_id"].(string)
+	if !ok || categoryIDStr == "" {
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"errors": "category id is required and cannot be empty",
+		})
+	}
+
+	categoryID, err := uuid.Parse(categoryIDStr)
+	if err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"errors": "Invalid Category ID format",
+		})
+	}
+
+	product := new(domain.Product)
+	err = json.Unmarshal(ctx.Body(), product)
+	if err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"errors": "Failed to parse request body",
+		})
+	}
+
+	product.CategoryID = categoryID
 
 	productRequest := webRequest.ProductCreateRequest{
 		Name:        product.Name,
