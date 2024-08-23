@@ -1,10 +1,12 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 	"test-golang-muhamad-isro/entity/domain"
 	webResponse "test-golang-muhamad-isro/entity/web"
+	webRequest "test-golang-muhamad-isro/entity/web/product"
+	"test-golang-muhamad-isro/helper"
 	service "test-golang-muhamad-isro/service/product"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,27 +23,30 @@ func NewProductHandler(productService service.ProductService) ProductHandler {
 }
 
 func (handler *ProductHandlerImpl) Insert(ctx *fiber.Ctx) error {
-	// categoryCreateRequest := webRequest.ProductCreateRequest{}
+	product := new(domain.Product)
+	err := json.Unmarshal(ctx.Body(), product)
 
-	product := domain.Product{}
+	helper.PanicIfError(err)
 
-	fmt.Println(ctx.Body)
-	// // helper.ReadFromRequestBody(ctx.Body, &categoryCreateRequest)
+	productRequest := webRequest.ProductCreateRequest{
+		Name:        product.Name,
+		Description: product.Description,
+		CategoryId:  product.CategoryID,
+	}
 
-	// categoryResponse := handler.ProductService.Insert(ctx, categoryCreateRequest)
+	productResponse := handler.ProductService.Insert(ctx, productRequest)
 
-	// webResponse := webResponse.WebResponse{
-	// 	Code:   http.StatusOK,
-	// 	Status: "OK",
-	// 	Data:   categoryResponse,
-	// }
+	webResponse := webResponse.WebResponse{
+		Code: http.StatusOK,
+		Data: productResponse,
+	}
 
-	// helper.WriteToJsonResponse(w, webResponse)
-
-	return ctx.Status(201).JSON(product)
+	return ctx.Status(http.StatusCreated).JSON(webResponse)
 }
 
 func (handler *ProductHandlerImpl) FindAll(ctx *fiber.Ctx) error {
+
+	productResponses := handler.ProductService.FindAll(ctx)
 
 	webResponse := webResponse.WebResponse{
 		Code: http.StatusOK,
