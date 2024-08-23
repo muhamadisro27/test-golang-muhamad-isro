@@ -1,0 +1,202 @@
+openapi: 3.0.2
+info:
+  title: API Contract
+  version: "1.0"
+  description: API Contract - Golang Test Muhamad Isro
+  contact:
+    name: Muhamad Isro Sabanur
+    email: mohammadisro2710@gmail.com
+servers:
+  - url: http://{environment}/api/v1
+    variables:
+      environment:
+        default: localhost:4000
+        description: Server Environment
+        enum:
+          - local
+paths:
+  /products:
+    get:
+      tags:
+        - Product
+      summary: Find All Products
+      description: find all data products following query parameters given
+      parameters:
+        - $ref: "#/components/parameters/Keyword"
+        - $ref: "#/components/parameters/CategoryId"
+      responses:
+        "200":
+          description: Successfully get all products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchemaResponseFindAllProduct"
+              example:
+                code: 200
+                data:
+                  - id: 49b4450e-0ebe-11ef-a282-087190471086
+                    name: test product
+                    description: test product description
+                    category:
+                      id: 99b4450e-0ebe-11ef-a282-087190471086
+                      name: test product category 1
+                  - id: 22b4450e-0ebe-11ef-a282-087190471086
+                    name: test product 2
+                    description: test product description
+                    category:
+                      id: 99b4450e-0ebe-11ef-a282-087190471086
+                      name: test product category 1
+        "500":
+          description: >-
+            Failed get products if the request failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchemaRequestError"
+              examples:
+                internal server error:
+                  $ref: "#/components/examples/InternalServerError"
+    post:
+      tags:
+        - Product
+      summary: Insert New Product
+      description: Insert new product data to the database
+      requestBody:
+        $ref: "#/components/requestBodies/InsertRequestBodyProduct"
+      responses:
+        "201":
+          description: Successfully insert product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchemaResponseInsertProduct"
+              example:
+                code: 201
+                data:
+                  id: 49b4450e-0ebe-11ef-a282-087190471086
+                  name: test product
+                  description: test product description
+                  category:
+                    id: 99b4450e-0ebe-11ef-a282-087190471086
+                    name: test product category 1
+        "422":
+          description: Successfully insert product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchemaValidationProduct"
+              example:
+                errors: Validation failed
+components:
+  requestBodies:
+    InsertRequestBodyProduct:
+      description: Payload for submit product data
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SchemaInsertRequestProduct"
+  schemas:
+    SchemaInsertRequestProduct:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 255
+        description:
+          type: string
+          minLength: 10
+          maxLength: 255
+        category_id:
+          type: string
+          minLength: 20
+          maxLength: 255
+      example:
+        name: test product
+        description: test product description
+        category_id: 99b4450e-0ebe-11ef-a282-087190471086
+    SchemaResponseFindAllProduct:
+      type: object
+      properties:
+        code:
+          type: number
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              category:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+    SchemaResponseInsertProduct:
+      type: object
+      properties:
+        code:
+          type: number
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            description:
+              type: string
+            category:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+    SchemaValidationProduct:
+      type: object
+      properties:
+        errors:
+          type: string
+    SchemaRequestError:
+      type: object
+      properties:
+        errors:
+          type: string
+  examples:
+    InternalServerError:
+      value:
+        code: 500
+        message: Something went wrong. Please try again later.
+  parameters:
+    Keyword:
+      name: keyword
+      in: query
+      description: Keyword for find data product with column name and description
+      schema:
+        type: string
+        minLength: 22
+        nullable: true
+      examples:
+        test:
+          description: sample data keyword
+          value: test
+    CategoryId:
+      name: category_id
+      in: query
+      description: Category Id for get data based on category id chosen
+      schema:
+        type: string
+        minLength: 22
+        nullable: true
+      examples:
+        99b4450e-0ebe-11ef-a282-087190471086:
+          description: sample data category id
+          value: 99b4450e-0ebe-11ef-a282-087190471086
