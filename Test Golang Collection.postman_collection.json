@@ -24,7 +24,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:4000/api/v1/products?keyword=test&category_id=99b4450e-0ebe-11ef-a282-087190471086",
+					"raw": "http://localhost:4000/api/v1/products?keyword=test&category_id=50337753-0598-4036-a490-03c4c699a725",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -47,7 +47,7 @@
 						},
 						{
 							"key": "category_id",
-							"value": "99b4450e-0ebe-11ef-a282-087190471086"
+							"value": "50337753-0598-4036-a490-03c4c699a725"
 						},
 						{
 							"key": "category_id",
