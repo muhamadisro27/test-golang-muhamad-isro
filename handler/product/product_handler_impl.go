@@ -1,13 +1,15 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 	"test-golang-muhamad-isro/entity/domain"
 	webResponse "test-golang-muhamad-isro/entity/web"
+	webRequest "test-golang-muhamad-isro/entity/web/product"
 	service "test-golang-muhamad-isro/service/product"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type ProductHandlerImpl struct {
@@ -21,27 +23,58 @@ func NewProductHandler(productService service.ProductService) ProductHandler {
 }
 
 func (handler *ProductHandlerImpl) Insert(ctx *fiber.Ctx) error {
-	// categoryCreateRequest := webRequest.ProductCreateRequest{}
 
-	product := domain.Product{}
+	var payload map[string]interface{}
+	err := json.Unmarshal(ctx.Body(), &payload)
+	if err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"errors": "Invalid request payload",
+		})
+	}
 
-	fmt.Println(ctx.Body)
-	// // helper.ReadFromRequestBody(ctx.Body, &categoryCreateRequest)
+	categoryIDStr, ok := payload["category_id"].(string)
+	if !ok || categoryIDStr == "" {
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"errors": "category id is required and cannot be empty",
+		})
+	}
 
-	// categoryResponse := handler.ProductService.Insert(ctx, categoryCreateRequest)
+	categoryID, err := uuid.Parse(categoryIDStr)
+	if err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"errors": "Invalid Category ID format",
+		})
+	}
 
-	// webResponse := webResponse.WebResponse{
-	// 	Code:   http.StatusOK,
-	// 	Status: "OK",
-	// 	Data:   categoryResponse,
-	// }
+	product := new(domain.Product)
+	err = json.Unmarshal(ctx.Body(), product)
+	if err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"errors": "Failed to parse request body",
+		})
+	}
 
-	// helper.WriteToJsonResponse(w, webResponse)
+	product.CategoryID = categoryID
 
-	return ctx.Status(201).JSON(product)
+	productRequest := webRequest.ProductCreateRequest{
+		Name:        product.Name,
+		Description: product.Description,
+		CategoryId:  product.CategoryID,
+	}
+
+	productResponse := handler.ProductService.Insert(ctx, productRequest)
+
+	webResponse := webResponse.WebResponse{
+		Code: http.StatusCreated,
+		Data: productResponse,
+	}
+
+	return ctx.Status(http.StatusCreated).JSON(webResponse)
 }
 
 func (handler *ProductHandlerImpl) FindAll(ctx *fiber.Ctx) error {
+
+	productResponses := handler.ProductService.FindAll(ctx)
 
 	webResponse := webResponse.WebResponse{
 		Code: http.StatusOK,

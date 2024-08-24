@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"test-golang-muhamad-isro/config"
 	"test-golang-muhamad-isro/database"
 	handler "test-golang-muhamad-isro/handler/product"
 	repository "test-golang-muhamad-isro/repository/product"
@@ -13,13 +14,17 @@ import (
 )
 
 func main() {
-	db := database.OpenConnection()
+
+	config := config.InitConfig()
+
+	DATABASE_URL := config.GetString("DATABASE_URL")
+
+	db := database.OpenConnection(DATABASE_URL)
 	defer database.CloseConnection(db)
 
 	app := fiber.New()
-	port := 4000
+	port := config.GetString("PORT")
 	validate := validator.New()
-
 
 	productRepository := repository.NewProductRepository()
 	productService := service.NewProductService(productRepository, db, validate)
@@ -27,9 +32,8 @@ func main() {
 
 	router.ProductRouter(app, productHandler)
 
-
-	fmt.Printf("Server listening on port %d...\n", port)
-	err := app.Listen(fmt.Sprintf(":%d", port))
+	fmt.Printf("Server listening on port %s...\n", port)
+	err := app.Listen(fmt.Sprintf(":%s", port))
 	if err != nil {
 		panic(err)
 	}
