@@ -10,9 +10,8 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-func OpenConnection() *gorm.DB {
-	dialect := "root:123456@unix(/home/user/test-golang-muhamad-isro/mysql/data/mysql.sock)/test_golang_muhamad_isro?parseTime=true"
-	db, err := gorm.Open(mysql.Open(dialect), &gorm.Config{
+func OpenConnection(DATABASE_URL string) *gorm.DB {
+	db, err := gorm.Open(mysql.Open(DATABASE_URL), &gorm.Config{
 		Logger:      logger.Default.LogMode(logger.Info),
 		PrepareStmt: true,
 	})

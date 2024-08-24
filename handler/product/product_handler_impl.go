@@ -65,7 +65,7 @@ func (handler *ProductHandlerImpl) Insert(ctx *fiber.Ctx) error {
 	productResponse := handler.ProductService.Insert(ctx, productRequest)
 
 	webResponse := webResponse.WebResponse{
-		Code: http.StatusOK,
+		Code: http.StatusCreated,
 		Data: productResponse,
 	}
 

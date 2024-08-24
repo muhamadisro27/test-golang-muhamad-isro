@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"test-golang-muhamad-isro/config"
 	"test-golang-muhamad-isro/database"
 	"test-golang-muhamad-isro/entity/domain"
 	handler "test-golang-muhamad-isro/handler/product"
@@ -25,7 +26,11 @@ func setupTestApp() (*fiber.App, *gorm.DB) {
 	// Initialize a new Fiber app
 	app := fiber.New()
 
-	db := database.OpenConnection()
+	config := config.InitConfig()
+
+	DATABASE_URL := config.GetString("DATABASE_URL")
+
+	db := database.OpenConnection(DATABASE_URL)
 
 	validate := validator.New()
 
