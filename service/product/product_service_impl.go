@@ -3,7 +3,6 @@ package service
 import (
 	"test-golang-muhamad-isro/entity/domain"
 	web "test-golang-muhamad-isro/entity/web/product"
-	"test-golang-muhamad-isro/exception"
 	"test-golang-muhamad-isro/helper"
 	repo_category_product "test-golang-muhamad-isro/repository/category_product"
 	repo_product "test-golang-muhamad-isro/repository/product"
@@ -38,11 +37,6 @@ func (service *ProductServiceImpl) Insert(ctx *fiber.Ctx, req web.ProductCreateR
 		Description: req.Description,
 	}
 
-	_, err = service.CategoryProductRepository.FindById(service.DB, product.CategoryID)
-
-	if err != nil {
-		panic(exception.NewNotFoundError("Category not found"))
-	}
 	product = service.ProductRepository.Insert(service.DB, product)
 
 	return helper.ToProductResponse(product)
